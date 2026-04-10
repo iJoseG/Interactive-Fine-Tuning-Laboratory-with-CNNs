@@ -1,0 +1,42 @@
+{
+    "Modelo1AntesdeDormi": {
+        "file_path": "modelos_historial/Modelo1AntesdeDormi_modelo.keras",
+        "base_cnn": "MobileNetV2",
+        "unfreeze": 4,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 1.0,
+        "test_loss": 0.00238275364972651,
+        "classes": [
+            "apple",
+            "coconut",
+            "orange",
+            "pear",
+            "pineapple",
+            "strawberry",
+            "watermelon"
+        ]
+    },
+    "Antededormi2": {
+        "file_path": "modelos_historial/Antededormi2_modelo.keras",
+        "base_cnn": "DenseNet121",
+        "unfreeze": 4,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 0.9931623935699463,
+        "test_loss": 0.016479775309562683,
+        "classes": [
+            "apple",
+            "coconut",
+            "orange",
+            "pear",
+            "pineapple",
+            "strawberry",
+            "watermelon"
+        ]
+    }
+}
