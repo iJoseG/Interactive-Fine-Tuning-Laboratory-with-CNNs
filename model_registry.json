@@ -38,5 +38,25 @@
             "strawberry",
             "watermelon"
         ]
+    },
+    "UltimaVersioPrueba": {
+        "file_path": "modelos_historial/UltimaVersioPrueba_modelo.keras",
+        "base_cnn": "MobileNetV2",
+        "unfreeze": 0,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 36,
+        "test_accuracy": 0.9965811967849731,
+        "test_loss": 0.01536483597010374,
+        "classes": [
+            "apple",
+            "coconut",
+            "orange",
+            "pear",
+            "pineapple",
+            "strawberry",
+            "watermelon"
+        ]
     }
 }

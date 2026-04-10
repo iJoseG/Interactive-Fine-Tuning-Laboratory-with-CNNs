@@ -26,7 +26,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, i
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.applications import VGG16, ResNet50, InceptionV3, MobileNetV2, DenseNet121
+from tensorflow.keras.applications import VGG16, ResNet50, InceptionV3, MobileNetV2, DenseNet121, EfficientNetB0
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint
 
 # Base de Datos Ligera para Registro de Experimentos
@@ -131,23 +131,32 @@ class FineTuningApp:
         param_frame = ttk.Frame(config_frame)
         param_frame.pack(fill=X, pady=5)
 
+        # Fila 0
         ttk.Label(param_frame, text="Modelo CNN Base:").grid(row=0, column=0, padx=5, pady=8, sticky=W)
-        ttk.Combobox(param_frame, textvariable=self.model_var, values=['VGG16', 'ResNet50', 'InceptionV3', 'MobileNetV2', 'DenseNet121'], state='readonly').grid(row=0, column=1, padx=5, pady=8)
+        ttk.Combobox(param_frame, textvariable=self.model_var, values=['EfficientNetB0', 'VGG16', 'ResNet50', 'InceptionV3', 'MobileNetV2', 'DenseNet121'], state='readonly', width=16).grid(row=0, column=1, padx=5, pady=8)
+        ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("modelo")).grid(row=0, column=2, padx=2)
 
-        ttk.Label(param_frame, text="Learning Rate:").grid(row=0, column=2, padx=(30, 5), pady=8, sticky=W)
-        ttk.Combobox(param_frame, textvariable=self.lr_var, values=['0.01', '0.001', '0.0001', '0.00001']).grid(row=0, column=3, padx=5, pady=8)
+        ttk.Label(param_frame, text="Learning Rate:").grid(row=0, column=3, padx=(25, 5), pady=8, sticky=W)
+        ttk.Combobox(param_frame, textvariable=self.lr_var, values=['0.01', '0.001', '0.0001', '0.00001'], width=10).grid(row=0, column=4, padx=5, pady=8)
+        ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("lr")).grid(row=0, column=5, padx=2)
 
+        # Fila 1
         ttk.Label(param_frame, text="Capas a descongelar:").grid(row=1, column=0, padx=5, pady=8, sticky=W)
-        ttk.Spinbox(param_frame, textvariable=self.unfreeze_var, from_=0, to=50).grid(row=1, column=1, padx=5, pady=8)
+        ttk.Spinbox(param_frame, textvariable=self.unfreeze_var, from_=0, to=100, width=14).grid(row=1, column=1, padx=5, pady=8)
+        ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("descongelar")).grid(row=1, column=2, padx=2)
 
-        ttk.Label(param_frame, text="Cant. Épocas:").grid(row=1, column=2, padx=(30, 5), pady=8, sticky=W)
-        ttk.Spinbox(param_frame, textvariable=self.epochs_var, from_=1, to=150).grid(row=1, column=3, padx=5, pady=8)
+        ttk.Label(param_frame, text="Cant. Épocas:").grid(row=1, column=3, padx=(25, 5), pady=8, sticky=W)
+        ttk.Spinbox(param_frame, textvariable=self.epochs_var, from_=1, to=150, width=10).grid(row=1, column=4, padx=5, pady=8)
+        ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("epocas")).grid(row=1, column=5, padx=2)
 
+        # Fila 2
         ttk.Label(param_frame, text="Tamaño Img:").grid(row=2, column=0, padx=5, pady=8, sticky=W)
-        ttk.Spinbox(param_frame, textvariable=self.img_size_var, from_=32, to=512).grid(row=2, column=1, padx=5, pady=8)
+        ttk.Spinbox(param_frame, textvariable=self.img_size_var, from_=32, to=512, width=14).grid(row=2, column=1, padx=5, pady=8)
+        ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("img_size")).grid(row=2, column=2, padx=2)
 
-        ttk.Label(param_frame, text="Batch Size:").grid(row=2, column=2, padx=(30, 5), pady=8, sticky=W)
-        ttk.Spinbox(param_frame, textvariable=self.batch_size_var, from_=1, to=512).grid(row=2, column=3, padx=5, pady=8)
+        ttk.Label(param_frame, text="Batch Size:").grid(row=2, column=3, padx=(25, 5), pady=8, sticky=W)
+        ttk.Spinbox(param_frame, textvariable=self.batch_size_var, from_=1, to=512, width=10).grid(row=2, column=4, padx=5, pady=8)
+        ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("batch")).grid(row=2, column=5, padx=2)
 
         self.btn_run = ttk.Button(main_frame, text="▶️ ENTRENAR Y REGISTRAR EN EL CATÁLOGO", bootstyle="success", command=self.start_training)
         self.btn_run.pack(fill=X, pady=10)
@@ -213,6 +222,36 @@ class FineTuningApp:
         self.lbl_image_preview.pack(pady=10, fill=BOTH, expand=YES)
 
     # ================= EVENTOS DE INTERFAZ Y ACTUALIZACIONES =================
+    
+    def show_info(self, param):
+        info_texts = {
+            "modelo": "💡 Arquitectura Base (Pre-entrenada)\n\n"
+                      "Es el 'Cerebro' pre-educado que actuaré como base. Toma años de experiencia de Google/Microsoft.\n"
+                      "• Aumentarlo (ej. EfficientNetB0 o ResNet): Modelos sumamente precisos e inteligentes por naturaleza; sin embargo son muy pesados, ocupan más VRAM y se entrenan lento.\n"
+                      "• Disminuirlo (ej. MobileNetV2): Menos asombrosos en precisión absoluta, pero ultraligeros, entrenan hiperrápido e ideales para dispositivos con baja potencia.",
+            "lr": "💡 Tasa de Aprendizaje (Learning Rate)\n\n"
+                  "Controla la 'agresividad' con la que el modelo modifica sus neuronas al ver errores.\n"
+                  "• Aumentarlo (ej. 0.01): Aprende rápido al inicio, pero a menudo 'salta' la respuesta volviéndose inestable, o sufre amnesia rompiendo el conocimiento genérico de ImageNet.\n"
+                  "• Disminuirlo (ej. 0.00001): Avanza muy lento, pero de forma micro-quirúrgica y muy meticulosa; óptimo para un Fine-Tuning delicado.",
+            "descongelar": "💡 Capas a Descongelar (Unfreeze)\n\n"
+                           "A cuántas capas profundas pre-congeladas de la arquitectura se les alterará la memoria.\n"
+                           "• 0 Capas: Respeta a rajatabla lo aprendido por defecto; excelente si tus imágenes son algo comunes.\n"
+                           "• Capas elevadas (ej. 20+): Permite a la red alterar su percepción y detectar patrones raros si tu dataset es enorme, caso contrario causarás Overfitting fulminante.",
+            "epocas": "💡 Épocas (Epochs)\n\n"
+                      "Garantizan ciclos en que tu red repasa rigurosamente todo el Dataset de principio a fin.\n"
+                      "• El Autoguardado evita perjuicios por exceso (guarda en su peak de validación), aunque poner 150 épocas ocuparía tiempo valioso que pudiste usar analizando los cortes.",
+            "img_size": "💡 Resolución Visual (Tamaño Img)\n\n"
+                        "Define con qué cantidad N x N de pixeles la red debe destripar la foto.\n"
+                        "• Tamaños enormes (Ej. 299x299): Obligatorio a veces para Inception, logrando texturas minuciosas excepcionales a costo crítico de VRAM.\n"
+                        "• Menores (Ej. 128x128): Relucientemente veloces para probar un parpadeo de época entero.",
+            "batch": "💡 Tamaño de Lote (Batch Size)\n\n"
+                     "Pack de fotografías cargadas al mismo instante en memoria GPU para consolidar un aprendizaje central.\n"
+                     "• Aumentarlo exige alta memoria temporal, el modelo en ocasiones sufre al quedar encajonado en atajos globales estáticos.\n"
+                     "• Disminuirlo a ~32 otorga al sistema saltos de exploración muy sanos pero demora ligeramentre más en computar el total."
+        }
+        texto = info_texts.get(param, "Sin información disponible.")
+        messagebox.showinfo("Documentación Científica", texto)
+
     def update_models_combo(self):
         """ Actualiza la tabla de modelos dropdown según el registro de historial """
         models = list(self.registry.keys())
@@ -432,7 +471,14 @@ class FineTuningApp:
             test_gen = val_test_datagen.flow_from_directory(test_dir, target_size=(i_size, i_size), batch_size=b_size, class_mode='categorical', shuffle=False)
 
             self.log(f"🧠 Aterrizando a {model_name} de memoria pesada ImageNet...")
-            model_dict = {'VGG16': VGG16, 'ResNet50': ResNet50, 'InceptionV3': InceptionV3, 'MobileNetV2': MobileNetV2, 'DenseNet121': DenseNet121}
+            model_dict = {
+                'EfficientNetB0': EfficientNetB0,
+                'VGG16': VGG16, 
+                'ResNet50': ResNet50, 
+                'InceptionV3': InceptionV3, 
+                'MobileNetV2': MobileNetV2, 
+                'DenseNet121': DenseNet121
+            }
             ModelClass = model_dict[model_name]
             
             try:
