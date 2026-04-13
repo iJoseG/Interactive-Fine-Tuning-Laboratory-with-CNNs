@@ -1,0 +1,38 @@
+Crea un proyecto de python con entorno gráfico completamente funcional que permita hacer fine-tuning interactivo de modelos preentrenados de Keras Applications (CNN). Debe incluir:
+
+1. *Interfaz con widgets* (ipywidgets) para que el usuario pueda seleccionar:
+   - Modelo base: VGG16, ResNet50, InceptionV3, MobileNetV2, DenseNet121.
+   - Número de capas a entrenar (descongelar desde el final del modelo base, valor entre 0 y 50).
+   - Tamaño de imagen (ej. 128, 224, 299 según modelo).
+   - Batch size.
+   - Learning rate (selector logarítmico).
+   - Número de épocas.
+   - Carga de un dataset en formato ZIP (imágenes organizadas en subcarpetas por clase).
+
+2. *Preprocesamiento automático de dataset de frutas*:
+   - Extraer el ZIP subido.
+   - Dividir el dataset en 70% entrenamiento, 20% validación, 10% prueba (test).
+   - Crear generadores de imágenes con aumento de datos solo para entrenamiento (rotación, desplazamiento, volteo) y solo reescalado para validación/test.
+   - Mostrar el número de clases y nombres de las clases detectadas.
+
+3. *Construcción del modelo*:
+   - Cargar el modelo base sin la parte superior (include_top=False) con pesos ImageNet.
+   - Congelar todas las capas del base, luego descongelar exactamente las últimas N capas seleccionadas por el usuario.
+   - Añadir una cabeza personalizada: GlobalAveragePooling2D → Dense(256, ReLU) → Dropout(0.5) → Dense(n_clases, softmax).
+   - Compilar con optimizador Adam y la learning rate seleccionada.
+
+4. *Entrenamiento*:
+   - Entrenar el modelo con los parámetros elegidos (épocas, batch size).
+   - Mostrar barras de progreso (verbose=1).
+   - Al finalizar, mostrar gráficas de precisión y pérdida (train vs validation) por época.
+
+5. *Evaluación final*:
+   - Calcular precisión y pérdida en el conjunto de prueba (10%).
+   - Dibujar la matriz de confusión (con seaborn) para el conjunto de prueba.
+   - Imprimir el reporte de clasificación (precisión, recall, f1-score por clase).
+
+6. *Detalles técnicos*:
+   - Verificar que se use GPU si está disponible.
+   - Asegurar compatibilidad con los tamaños de entrada requeridos por cada modelo (ej. InceptionV3 necesita al menos 75x75, mejor 299x299; MobileNetV2 funciona con 224x224, etc.).
+   
+El objetivo es que un usuario no experto pueda subir su ZIP de imágenes, elegir parámetros, hacer clic en un botón y obtener gráficas, matriz de confusión y evaluación automáticamente.

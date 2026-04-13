@@ -58,5 +58,78 @@
             "strawberry",
             "watermelon"
         ]
+    },
+    "DuranteLaClase": {
+        "file_path": "modelos_historial/DuranteLaClase_modelo.keras",
+        "base_cnn": "EfficientNetB0",
+        "unfreeze": 2,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 0.26837608218193054,
+        "test_loss": 1.8411437273025513,
+        "classes": [
+            "apple",
+            "coconut",
+            "orange",
+            "pear",
+            "pineapple",
+            "strawberry",
+            "watermelon"
+        ]
+    },
+    "PerrosyGatos": {
+        "file_path": "modelos_historial/PerrosyGatos_modelo.keras",
+        "base_cnn": "MobileNetV2",
+        "unfreeze": 2,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 0.9901960492134094,
+        "test_loss": 0.07416429370641708,
+        "classes": [
+            "cats",
+            "dogs"
+        ]
+    },
+    "Animales": {
+        "file_path": "modelos_historial/Animales_modelo.keras",
+        "base_cnn": "MobileNetV2",
+        "unfreeze": 2,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 0.9565383195877075,
+        "test_loss": 0.15149055421352386,
+        "classes": [
+            "cane",
+            "cavallo",
+            "elefante",
+            "farfalla",
+            "gallina",
+            "gatto",
+            "mucca",
+            "pecora",
+            "ragno",
+            "scoiattolo"
+        ]
+    },
+    "ProbandoEfficientNetV2L": {
+        "file_path": "modelos_historial/ProbandoEfficientNetV2L_modelo.keras",
+        "base_cnn": "EfficientNetV2L",
+        "unfreeze": 2,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 0.5784313678741455,
+        "test_loss": 0.6791189312934875,
+        "classes": [
+            "cats",
+            "dogs"
+        ]
     }
 }

@@ -26,12 +26,13 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, i
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.applications import VGG16, ResNet50, InceptionV3, MobileNetV2, DenseNet121, EfficientNetB0
+from tensorflow.keras.applications import VGG16, ResNet50, InceptionV3, MobileNetV2, DenseNet121, EfficientNetV2L
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint
 
 # Base de Datos Ligera para Registro de Experimentos
 REGISTRY_FILE = "model_registry.json"
 MODELS_DIR = "modelos_historial"
+PLOTS_DIR = "graficas_historial"
 
 def load_registry():
     if not os.path.exists(REGISTRY_FILE):
@@ -46,8 +47,9 @@ def save_registry(data):
     with open(REGISTRY_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-# Asegurar que el directorio de modelos múltiples existirá
+# Asegurar que los directorios múltiples existirán
 os.makedirs(MODELS_DIR, exist_ok=True)
+os.makedirs(PLOTS_DIR, exist_ok=True)
 
 class KerasUIDispatcher(Callback):
     """
@@ -71,7 +73,7 @@ class FineTuningApp:
         self.root.geometry("900x820")
         
         # Variables de Configuración de Experimentos
-        self.model_name_var = ttk.StringVar(value="Mi_Experimento_Frutas_1")
+        self.model_name_var = ttk.StringVar(value="Mi_Experimento_1")
         self.zip_path = ttk.StringVar()
         self.model_var = ttk.StringVar(value='MobileNetV2')
         self.unfreeze_var = ttk.IntVar(value=0)
@@ -123,7 +125,7 @@ class FineTuningApp:
         # File picker
         file_frame = ttk.Frame(config_frame)
         file_frame.pack(fill=X, pady=(5, 10))
-        ttk.Label(file_frame, text="📂 Dataset (ZIP) frutas:", width=30).pack(side=LEFT, padx=5)
+        ttk.Label(file_frame, text="📂 Dataset (ZIP):", width=30).pack(side=LEFT, padx=5)
         ttk.Entry(file_frame, textvariable=self.zip_path, state='readonly').pack(side=LEFT, fill=X, expand=YES, padx=5)
         ttk.Button(file_frame, text="Buscar Archivo...", command=self.browse_file, bootstyle=SECONDARY).pack(side=LEFT, padx=5)
 
@@ -133,7 +135,7 @@ class FineTuningApp:
 
         # Fila 0
         ttk.Label(param_frame, text="Modelo CNN Base:").grid(row=0, column=0, padx=5, pady=8, sticky=W)
-        ttk.Combobox(param_frame, textvariable=self.model_var, values=['EfficientNetB0', 'VGG16', 'ResNet50', 'InceptionV3', 'MobileNetV2', 'DenseNet121'], state='readonly', width=16).grid(row=0, column=1, padx=5, pady=8)
+        ttk.Combobox(param_frame, textvariable=self.model_var, values=['EfficientNetV2L', 'VGG16', 'ResNet50', 'InceptionV3', 'MobileNetV2', 'DenseNet121'], state='readonly', width=16).grid(row=0, column=1, padx=5, pady=8)
         ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("modelo")).grid(row=0, column=2, padx=2)
 
         ttk.Label(param_frame, text="Learning Rate:").grid(row=0, column=3, padx=(25, 5), pady=8, sticky=W)
@@ -227,7 +229,7 @@ class FineTuningApp:
         info_texts = {
             "modelo": "💡 Arquitectura Base (Pre-entrenada)\n\n"
                       "Es el 'Cerebro' pre-educado que actuaré como base. Toma años de experiencia de Google/Microsoft.\n"
-                      "• Aumentarlo (ej. EfficientNetB0 o ResNet): Modelos sumamente precisos e inteligentes por naturaleza; sin embargo son muy pesados, ocupan más VRAM y se entrenan lento.\n"
+                      "• Aumentarlo (ej. EfficientNetV2L o ResNet): Modelos sumamente precisos e inteligentes por naturaleza; sin embargo son muy pesados, ocupan más VRAM y se entrenan lento.\n"
                       "• Disminuirlo (ej. MobileNetV2): Menos asombrosos en precisión absoluta, pero ultraligeros, entrenan hiperrápido e ideales para dispositivos con baja potencia.",
             "lr": "💡 Tasa de Aprendizaje (Learning Rate)\n\n"
                   "Controla la 'agresividad' con la que el modelo modifica sus neuronas al ver errores.\n"
@@ -390,7 +392,7 @@ class FineTuningApp:
             predicted_class = classes_trained[class_idx]
             
             self.lbl_result.config(
-                text=f"🍎 Resultado: {predicted_class.upper()} (Seguridad del {confidence*100:.1f}%)", 
+                text=f" Resultado: {predicted_class.upper()} (Seguridad del {confidence*100:.1f}%)", 
                 bootstyle=SUCCESS
             )
             
@@ -472,7 +474,7 @@ class FineTuningApp:
 
             self.log(f"🧠 Aterrizando a {model_name} de memoria pesada ImageNet...")
             model_dict = {
-                'EfficientNetB0': EfficientNetB0,
+                'EfficientNetV2L': EfficientNetV2L,
                 'VGG16': VGG16, 
                 'ResNet50': ResNet50, 
                 'InceptionV3': InceptionV3, 
@@ -553,6 +555,9 @@ class FineTuningApp:
             self.root.after(0, self.finish_training)
 
     def show_results(self, exp_name, history, cm, classes):
+        exp_plots_dir = os.path.join(PLOTS_DIR, exp_name)
+        os.makedirs(exp_plots_dir, exist_ok=True)
+
         # 1. Gráficas
         plt.figure(f"Historial Formativo de: {exp_name}", figsize=(12, 5))
         plt.subplot(1, 2, 1)
@@ -573,6 +578,8 @@ class FineTuningApp:
         plt.legend()
         plt.grid()
         plt.tight_layout()
+        
+        plt.savefig(os.path.join(exp_plots_dir, "historial_formativo.png"), dpi=300)
         plt.show(block=False)
 
         # 2. Matriz
@@ -582,6 +589,8 @@ class FineTuningApp:
         plt.ylabel('Fruta Verdadera Oficial')
         plt.xlabel('Diagnóstico del Cerebro de la IA')
         plt.tight_layout()
+        
+        plt.savefig(os.path.join(exp_plots_dir, "matriz_confusion.png"), dpi=300)
         plt.show(block=False)
 
 if __name__ == "__main__":
