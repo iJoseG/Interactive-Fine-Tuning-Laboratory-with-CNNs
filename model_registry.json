@@ -82,13 +82,13 @@
     "PerrosyGatos": {
         "file_path": "modelos_historial/PerrosyGatos_modelo.keras",
         "base_cnn": "MobileNetV2",
-        "unfreeze": 2,
+        "unfreeze": 0,
         "learning_rate": 0.0001,
         "img_size": 224,
         "epochs": 10,
         "batch_size": 32,
-        "test_accuracy": 0.9901960492134094,
-        "test_loss": 0.07416429370641708,
+        "test_accuracy": 0.9656862616539001,
+        "test_loss": 0.0716206356883049,
         "classes": [
             "cats",
             "dogs"
@@ -130,6 +130,26 @@
         "classes": [
             "cats",
             "dogs"
+        ]
+    },
+    "ProbandoBotondeCancelar": {
+        "file_path": "modelos_historial/ProbandoBotondeCancelar_modelo.keras",
+        "base_cnn": "ResNet50",
+        "unfreeze": 2,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 0.6170940399169922,
+        "test_loss": 1.422397255897522,
+        "classes": [
+            "apple",
+            "coconut",
+            "orange",
+            "pear",
+            "pineapple",
+            "strawberry",
+            "watermelon"
         ]
     }
 }

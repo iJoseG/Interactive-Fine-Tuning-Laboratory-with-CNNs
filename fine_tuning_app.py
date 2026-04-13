@@ -190,19 +190,22 @@ class FineTuningApp:
     def build_test_tab(self):
         main_frame = self.test_tab
         
-        # Contenedor padre horizontal
+        # Contenedor padre: grid con pesos iguales para 50/50 exacto
         h_container = ttk.Frame(main_frame)
         h_container.pack(fill=BOTH, expand=YES, pady=5)
+        h_container.columnconfigure(0, weight=1, uniform="half")
+        h_container.columnconfigure(1, weight=1, uniform="half")
+        h_container.rowconfigure(0, weight=1)
         
         # --- COLUMNA IZQUIERDA (Catálogo y Ficha Técnica) ---
         left_panel = ttk.Frame(h_container)
-        left_panel.pack(side=LEFT, fill=BOTH, expand=True, padx=(0, 10))
+        left_panel.grid(row=0, column=0, sticky=NSEW, padx=(0, 8))
         
         selector_frame = ttk.LabelFrame(left_panel, text="1. Selecciona Histórico")
-        selector_frame.pack(fill=BOTH, expand=YES, ipadx=15, ipady=15)
+        selector_frame.pack(fill=BOTH, expand=YES, ipadx=10, ipady=10)
         
         ttk.Label(selector_frame, text="Modelos Entrenados:", font="-weight bold").pack(anchor=W, pady=(0,5))
-        self.combo_models = ttk.Combobox(selector_frame, textvariable=self.selected_test_model, state="readonly", width=40)
+        self.combo_models = ttk.Combobox(selector_frame, textvariable=self.selected_test_model, state="readonly")
         self.combo_models.pack(fill=X, pady=5)
         self.combo_models.bind("<<ComboboxSelected>>", self.on_model_selected)
         
@@ -231,10 +234,10 @@ class FineTuningApp:
         
         # --- COLUMNA DERECHA (Prueba Visual) ---
         right_panel = ttk.Frame(h_container)
-        right_panel.pack(side=LEFT, fill=BOTH, expand=True, padx=(10, 0))
+        right_panel.grid(row=0, column=1, sticky=NSEW, padx=(8, 0))
         
         test_frame = ttk.LabelFrame(right_panel, text="2. Inferencia en Nueva Fotografía")
-        test_frame.pack(fill=BOTH, expand=YES, ipadx=15, ipady=15)
+        test_frame.pack(fill=BOTH, expand=YES, ipadx=10, ipady=10)
         
         btn_frame = ttk.Frame(test_frame)
         btn_frame.pack(fill=X, pady=10)
@@ -242,12 +245,13 @@ class FineTuningApp:
         ttk.Button(btn_frame, text="📷 1. Buscar Foto", bootstyle=PRIMARY, command=self.browse_test_image).pack(side=LEFT, padx=5, fill=X, expand=YES)
         ttk.Button(btn_frame, text="🧠 2. PREDECIR", bootstyle=SUCCESS, command=self.predict_image).pack(side=LEFT, padx=5, fill=X, expand=YES)
         
-        # Poner el resultado ARRIBA de la imagen para que jamás se oculte de la vista
-        self.lbl_result = ttk.Label(test_frame, text="Resultado: ---", font="-size 20 -weight bold", bootstyle=WARNING, justify=CENTER)
-        self.lbl_result.pack(pady=10)
+        # Resultado siempre arriba para que no sea empujado fuera
+        self.lbl_result = ttk.Label(test_frame, text="Resultado: ---", font="-size 20 -weight bold", bootstyle=WARNING, justify=CENTER, anchor=CENTER)
+        self.lbl_result.pack(fill=X, pady=10)
         
-        self.lbl_image_preview = ttk.Label(test_frame, text="[ Aún no has seleccionado ninguna foto ]", justify=CENTER)
-        self.lbl_image_preview.pack(pady=10, fill=BOTH, expand=YES)
+        # Imagen centrada horizontalmente dentro del recuadro
+        self.lbl_image_preview = ttk.Label(test_frame, text="[ Aún no has seleccionado ninguna foto ]", justify=CENTER, anchor=CENTER)
+        self.lbl_image_preview.pack(expand=YES, anchor=CENTER)
 
     # ================= EVENTOS DE INTERFAZ Y ACTUALIZACIONES =================
     
