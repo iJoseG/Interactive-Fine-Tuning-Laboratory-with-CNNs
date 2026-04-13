@@ -17,20 +17,20 @@
 ## 📖 Tabla de Contenidos
 
 1. [Introducción y Propósito](#-introducción-y-propósito)
-2. [Capturas de Pantalla](#capturas-de-pantalla)
-3. [Conceptos Teóricos](#conceptos-teóricos)
-4. [Arquitecturas CNN Disponibles](#arquitecturas-cnn-disponibles)
-5. [Tecnologías y Librerías](#tecnologías-y-librerías)
-6. [Estructura del Proyecto](#estructura-del-proyecto)
-7. [Arquitectura del Código](#arquitectura-del-código)
-8. [Parámetros de Entrenamiento](#parámetros-de-entrenamiento)
-9. [Instalación y Configuración](#instalación-y-configuración)
-10. [Guía de Uso Paso a Paso](#guía-de-uso-paso-a-paso)
-11. [Sistema de Catálogo Histórico (MLOps)](#sistema-de-catálogo-histórico-mlops)
-12. [Formato del Dataset](#formato-del-dataset)
-13. [Interpretación de Resultados](#interpretación-de-resultados)
-14. [Guía Anti-Overfitting](#guía-anti-overfitting)
-15. [Solución de Problemas](#solución-de-problemas)
+2. [Capturas de Pantalla](#-capturas-de-pantalla)
+3. [Conceptos Teóricos](#-conceptos-teóricos)
+4. [Arquitecturas CNN Disponibles](#-arquitecturas-cnn-disponibles)
+5. [Tecnologías y Librerías](#-tecnologías-y-librerías)
+6. [Estructura del Proyecto](#-estructura-del-proyecto)
+7. [Arquitectura del Código](#-arquitectura-del-código)
+8. [Parámetros de Entrenamiento](#-parámetros-de-entrenamiento)
+9. [Instalación y Configuración](#-instalación-y-configuración)
+10. [Guía de Uso Paso a Paso](#-guía-de-uso-paso-a-paso)
+11. [Sistema de Catálogo Histórico (MLOps)](#-sistema-de-catálogo-histórico-mlops)
+12. [Formato del Dataset](#-formato-del-dataset)
+13. [Interpretación de Resultados](#-interpretación-de-resultados)
+14. [Guía Anti-Overfitting](#-guía-anti-overfitting)
+15. [Solución de Problemas](#-solución-de-problemas)
 
 ---
 
@@ -60,10 +60,14 @@ Entrenar una red neuronal convolucional desde cero requiere:
 ## 🖥️ Capturas de Pantalla
 
 ### Pestaña 1: Crear y Entrenar Escenario
-La interfaz de entrenamiento permite configurar todos los hiperparámetros visualmente. Cada parámetro tiene un botón `ℹ️` que explica su función y cómo afecta al entrenamiento. La consola en tiempo real muestra el progreso de cada época.
+La interfaz de entrenamiento permite configurar todos los hiperparámetros visualmente. Cada parámetro tiene un botón `ℹ️` que explica su función y cómo afecta al entrenamiento. La barra de progreso y la consola en tiempo real muestran el avance de cada época, y los botones de acción permiten iniciar o cancelar el proceso de forma segura.
+
+![Interfaz de Entrenamiento](screeshots/Cap1.png)
 
 ### Pestaña 2: Catálogo Histórico y Pruebas
-Panel dividido 50/50: a la izquierda, la ficha técnica completa del experimento seleccionado junto con botones para visualizar sus gráficas guardadas. A la derecha, el módulo de inferencia para probar el modelo con imágenes propias.
+Panel dividido 50/50: a la izquierda, la ficha técnica completa del experimento seleccionado (precisión, arquitectura, hiperparámetros) junto con botones para visualizar las gráficas guardadas de ese modelo. A la derecha, el módulo de inferencia para probar el modelo con cualquier imagen propia y ver el resultado de predicción con su porcentaje de confianza.
+
+![Catálogo Histórico y Pruebas](screeshots/Cap2.png)
 
 ---
 
