@@ -16,7 +16,7 @@
 
 ## 📖 Tabla de Contenidos
 
-1. [Introducción y Propósito](#introducción-y-propósito)
+1. [Introducción y Propósito](#-introducción-y-propósito)
 2. [Capturas de Pantalla](#capturas-de-pantalla)
 3. [Conceptos Teóricos](#conceptos-teóricos)
 4. [Arquitecturas CNN Disponibles](#arquitecturas-cnn-disponibles)
