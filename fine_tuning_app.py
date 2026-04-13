@@ -214,6 +214,21 @@ class FineTuningApp:
         )
         self.lbl_model_stats.pack(fill=X, pady=5)
         
+        # Botones de visualización de gráficas guardadas
+        ttk.Label(selector_frame, text="Gráficas guardadas:").pack(anchor=W, pady=(15, 5))
+        graficas_btns = ttk.Frame(selector_frame)
+        graficas_btns.pack(fill=X, pady=5)
+        ttk.Button(
+            graficas_btns, text="📈 Ver Historial Formativo",
+            bootstyle="info-outline",
+            command=lambda: self.show_plot_window("historial_formativo")
+        ).pack(side=LEFT, fill=X, expand=YES, padx=(0, 5))
+        ttk.Button(
+            graficas_btns, text="🟦 Ver Matriz de Confusión",
+            bootstyle="secondary-outline",
+            command=lambda: self.show_plot_window("matriz_confusion")
+        ).pack(side=LEFT, fill=X, expand=YES, padx=(5, 0))
+        
         # --- COLUMNA DERECHA (Prueba Visual) ---
         right_panel = ttk.Frame(h_container)
         right_panel.pack(side=LEFT, fill=BOTH, expand=True, padx=(10, 0))
@@ -297,6 +312,55 @@ class FineTuningApp:
         
         # Borrar resultado anterior para no confundir
         self.lbl_result.config(text="Resultado: ---", bootstyle=WARNING)
+
+    def show_plot_window(self, plot_type):
+        """Abre una ventanita flotante mostrando la gráfica guardada del modelo seleccionado."""
+        model_key = self.selected_test_model.get()
+        if not model_key:
+            messagebox.showwarning("Sin selección", "Primero selecciona un modelo de la lista.")
+            return
+
+        img_path = os.path.join(PLOTS_DIR, model_key, f"{plot_type}.png")
+
+        if not os.path.exists(img_path):
+            nombres = {
+                "historial_formativo": "Historial Formativo (Pérdida y Precisión)",
+                "matriz_confusion": "Matriz de Confusión"
+            }
+            messagebox.showinfo(
+                "Gráficas no encontradas",
+                f"El modelo '{model_key}' no tiene la gráfica de '{nombres.get(plot_type, plot_type)}' guardada.\n\n"
+                f"Esto puede ocurrir si el entrenamiento fue cancelado antes de terminar, "
+                f"o si el experimento fue creado antes de que el guardado de gráficas fuera implementado."
+            )
+            return
+
+        try:
+            titulos = {
+                "historial_formativo": f"📈 Historial Formativo — {model_key}",
+                "matriz_confusion": f"🟦 Matriz de Confusión — {model_key}"
+            }
+            ventana = ttk.Toplevel(self.root)
+            ventana.title(titulos.get(plot_type, plot_type))
+            ventana.resizable(True, True)
+
+            img = Image.open(img_path)
+            # Escalar para que quepa bien en pantalla sin perder detalle
+            max_w, max_h = 900, 600
+            img.thumbnail((max_w, max_h), Image.LANCZOS)
+            tk_img = ImageTk.PhotoImage(img)
+
+            lbl = ttk.Label(ventana, image=tk_img)
+            lbl.image = tk_img  # Referencia para evitar que el GC de Python la elimine
+            lbl.pack(padx=10, pady=10)
+
+            ttk.Button(
+                ventana, text="Cerrar", bootstyle=SECONDARY,
+                command=ventana.destroy
+            ).pack(pady=(0, 10))
+
+        except Exception as e:
+            messagebox.showerror("Error al abrir gráfica", str(e))
 
     def browse_file(self):
         filepath = askopenfilename(filetypes=[("Archivos Recortados/ZIP", "*.zip")])
