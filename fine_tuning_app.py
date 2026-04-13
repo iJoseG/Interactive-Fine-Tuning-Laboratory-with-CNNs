@@ -60,6 +60,10 @@ class KerasUIDispatcher(Callback):
         self.app = app
         self.total_epochs = total_epochs
 
+    def on_batch_end(self, batch, logs=None):
+        if self.app.stop_training_flag:
+            self.model.stop_training = True
+
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
         msg = f"Época {epoch+1}/{self.total_epochs} - loss: {logs.get('loss'):.4f} - acc: {logs.get('accuracy'):.4f} - val_loss: {logs.get('val_loss'):.4f} - val_acc: {logs.get('val_accuracy'):.4f}"
@@ -86,6 +90,7 @@ class FineTuningApp:
         self.test_img_path = ttk.StringVar()
         self.tk_image = None
         self.selected_test_model = ttk.StringVar()
+        self.stop_training_flag = False
 
         # Cargar Base de Datos Local
         self.registry = load_registry()
@@ -160,8 +165,14 @@ class FineTuningApp:
         ttk.Spinbox(param_frame, textvariable=self.batch_size_var, from_=1, to=512, width=10).grid(row=2, column=4, padx=5, pady=8)
         ttk.Button(param_frame, text="ℹ️", bootstyle="info-outline", cursor="hand2", command=lambda: self.show_info("batch")).grid(row=2, column=5, padx=2)
 
-        self.btn_run = ttk.Button(main_frame, text="▶️ ENTRENAR Y REGISTRAR EN EL CATÁLOGO", bootstyle="success", command=self.start_training)
-        self.btn_run.pack(fill=X, pady=10)
+        btn_action_frame = ttk.Frame(main_frame)
+        btn_action_frame.pack(fill=X, pady=10)
+
+        self.btn_run = ttk.Button(btn_action_frame, text="▶️ ENTRENAR Y REGISTRAR EN EL CATÁLOGO", bootstyle="success", command=self.start_training)
+        self.btn_run.pack(side=LEFT, fill=X, expand=YES, padx=(0, 5))
+        
+        self.btn_stop = ttk.Button(btn_action_frame, text="🛑 CANCELAR", bootstyle="danger", state=DISABLED, command=self.cancel_training)
+        self.btn_stop.pack(side=LEFT, fill=X, expand=YES, padx=(5, 0))
 
         self.progress = ttk.Progressbar(main_frame, bootstyle="info-striped", maximum=100)
         self.progress.pack(fill=X, pady=(0, 10))
@@ -320,10 +331,19 @@ class FineTuningApp:
 
     def finish_training(self):
         self.btn_run.config(state=NORMAL)
+        self.btn_stop.config(state=DISABLED)
         self.update_models_combo() # Se forzará la actualización del Combo de Test
-        self.log("✅ Proceso terminado y Catálogo sincronizado.")
+        if self.stop_training_flag:
+            self.log("❌ Entrenamiento abortado por el usuario.")
+        else:
+            self.log("✅ Proceso terminado y Catálogo sincronizado.")
 
     # ================= LOGICA DE GESTIOR DE PROCESOS =================
+
+    def cancel_training(self):
+        self.stop_training_flag = True
+        self.btn_stop.config(state=DISABLED)
+        self.log("⚠️ Solicitud de cancelación enviada. Acortando neuronas e interrumpiendo entrenamiento de forma segura en el próximo micro-lote...")
 
     def start_training(self):
         # Validar Nombre Experimento Vacío
@@ -342,7 +362,9 @@ class FineTuningApp:
             messagebox.showerror("Error", "Por favor selecciona un archivo ZIP de datos válido.")
             return
 
+        self.stop_training_flag = False
         self.btn_run.config(state=DISABLED)
+        self.btn_stop.config(state=NORMAL)
         self.progress['value'] = 0
         self.console.delete(1.0, END)
         self.log(f"🚀 Iniciando Misión de Entrenamiento: '{exp_name}' ...")
@@ -514,6 +536,11 @@ class FineTuningApp:
                 train_gen, validation_data=val_gen, epochs=epochs,
                 verbose=0, callbacks=[callback_ui, checkpoint]
             )
+
+            if self.stop_training_flag:
+                # Evitar post-procesamientos gráficos si se canceló a medias
+                if os.path.exists(base_dir): shutil.rmtree(base_dir)
+                return
 
             self.log("🔎 Evaluando capacidad generalizadora real y final... (Test Set puro)")
             test_loss, test_acc = model.evaluate(test_gen, verbose=0)

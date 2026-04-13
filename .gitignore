@@ -1,3 +1,10 @@
+# Carpetas y Archivos Dinámicos Privados del Autoguardados
 venv_tf/
+dataset_temp/
+dataset_split/
+
+# Archivos de caché transitorios de Python por defecto
+__pycache__/
+*.pyc
 *.keras
 *.so*
