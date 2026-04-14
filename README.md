@@ -435,7 +435,20 @@ Número de veces que el modelo recorre todo el dataset de entrenamiento. El `Mod
 
 ## 🛠️ Instalación y Configuración
 
-### Requisitos del Sistema
+### 🚀 Opción A: Descarga y Ejecución Directa (Sin Python)
+
+Si prefieres no configurar un entorno de desarrollo, puedes descargar los binarios pre-compilados directamente desde el apartado de **[Releases de GitHub](https://github.com/iJoseG/Interactive-Fine-Tuning-Laboratory-with-CNNs/releases)**:
+
+- **Linux (AppImage):** Descarga `fine_tuning_app-x86_64.AppImage`, dale permisos de ejecución (`chmod +x fine_tuning_app-x86_64.AppImage`) y lánzalo.
+- **Windows (Portable):** Descarga `FineTuningLab.zip`, descomprímelo y ejecuta el archivo `fine_tuning_app.exe`. No requiere instalación de Python ni librerías adicionales.
+
+---
+
+### 💻 Opción B: Instalación para Desarrolladores (Entorno Python)
+
+Si deseas modificar el código o ejecutarlo desde la terminal:
+
+#### 📋 Requisitos del Sistema
 
 - **Python:** 3.10, 3.11 o 3.12 (TensorFlow no soporta 3.13+ aún)
 - **RAM:** Mínimo 8 GB (recomendado 16 GB)
