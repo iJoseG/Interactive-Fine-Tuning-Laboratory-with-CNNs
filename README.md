@@ -17,7 +17,7 @@
 ## 📖 Tabla de Contenidos
 
 1. [Introducción y Propósito](#-introducción-y-propósito)
-2. [Capturas de Pantalla](#-capturas-de-pantalla)
+2. [Capturas de Pantalla](#%EF%B8%8F-capturas-de-pantalla)
 3. [Conceptos Teóricos](#-conceptos-teóricos)
 4. [Arquitecturas CNN Disponibles](#-arquitecturas-cnn-disponibles)
 5. [Tecnologías y Librerías](#-tecnologías-y-librerías)
@@ -246,7 +246,7 @@ Precisión de Validación    ↓ (colapsando)
 ## 📁 Estructura del Proyecto
 
 ```
-lelninmachin10-04/
+Interactive-Fine-Tuning-Laboratory-with-CNNs/
 │
 ├── fine_tuning_app.py          # Aplicación principal (código fuente completo)
 ├── requirements.txt            # Dependencias del entorno virtual
@@ -292,30 +292,30 @@ lelninmachin10-04/
 ### Diagrama de Componentes
 
 ```
-┌──────────────────────────────────────────────────────────────┐
+┌───────────────────────────────────────────────────────────────┐
 │                      fine_tuning_app.py                       │
 │                                                               │
 │  ┌─────────────────────┐    ┌──────────────────────────────┐  │
-│  │  KerasUIDispatcher  │    │       FineTuningApp           │  │
+│  │  KerasUIDispatcher  │    │       FineTuningApp          │  │
 │  │  (Keras Callback)   │◄───│  (Clase principal de la GUI) │  │
-│  │                     │    │                               │  │
-│  │ on_batch_end()      │    │  build_ui()                   │  │
-│  │   → verifica flag   │    │  build_train_tab()            │  │
-│  │     de cancelación  │    │  build_test_tab()             │  │
-│  │                     │    │                               │  │
-│  │ on_epoch_end()      │    │  start_training()             │  │
-│  │   → envía métricas  │    │  cancel_training()            │  │
-│  │     a la UI via     │    │  training_process()   ────────┼──►  Thread Daemon
-│  │     root.after()    │    │  predict_image()              │  │
-│  └─────────────────────┘    │  show_results()               │  │
-│                              │  show_plot_window()           │  │
-│                              │  on_model_selected()          │  │
-│                              └──────────────────────────────┘  │
+│  │                     │    │                              │  │
+│  │ on_batch_end()      │    │  build_ui()                  │  │
+│  │   → verifica flag   │    │  build_train_tab()           │  │
+│  │     de cancelación  │    │  build_test_tab()            │  │
+│  │                     │    │                              │  │
+│  │ on_epoch_end()      │    │  start_training()            │  │
+│  │   → envía métricas  │    │  cancel_training()           │  │
+│  │     a la UI via     │    │  training_process()   ──────────┼──►  Thread Daemon
+│  │     root.after()    │    │  predict_image()             │  │
+│  └─────────────────────┘    │  show_results()              │  │
+│                             │  show_plot_window()          │  │
+│                             │  on_model_selected()         │  │
+│                             └──────────────────────────────┘  │
 │                                                               │
-│  ┌────────────────┐  ┌─────────────────┐                     │
+│  ┌────────────────┐  ┌─────────────────┐                      │
 │  │  load_registry │  │  save_registry  │ ← Funciones globales │
-│  └────────────────┘  └─────────────────┘   de persistencia   │
-└──────────────────────────────────────────────────────────────┘
+│  └────────────────┘  └─────────────────┘   de persistencia    │
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ### Flujo de Ejecución del Entrenamiento
@@ -386,7 +386,7 @@ Esto espera a que el micro-lote actual termine, libera la GPU correctamente y re
 ## 🎛️ Parámetros de Entrenamiento
 
 ### Nombre del Experimento
-Identificador único alfanumérico para este entrenamient. Se usa como clave en `model_registry.json` y como nombre de carpeta para las gráficas. Ejemplos: `MobileNetV2_LR0001_10epochs`, `ResNet50_Frutas_v2`.
+Identificador único alfanumérico para este entrenamiento. Se usa como clave en `model_registry.json` y como nombre de carpeta para las gráficas. Ejemplos: `MobileNetV2_LR0001_10epochs`, `ResNet50_Frutas_v2`.
 
 ### Modelo CNN Base
 Ver tabla comparativa en la sección [Arquitecturas CNN Disponibles](#arquitecturas-cnn-disponibles).
@@ -443,8 +443,8 @@ Número de veces que el modelo recorre todo el dataset de entrenamiento. El `Mod
 ### Paso 1: Clonar el Repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/tu-repositorio.git
-cd tu-repositorio
+git clone https://github.com/iJoseG/Interactive-Fine-Tuning-Laboratory-with-CNNs
+cd Interactive-Fine-Tuning-Laboratory-with-CNNs
 ```
 
 ### Paso 2: Crear el Entorno Virtual

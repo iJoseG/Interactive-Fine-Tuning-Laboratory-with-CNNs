@@ -151,5 +151,20 @@
             "strawberry",
             "watermelon"
         ]
+    },
+    "PerrosyGatos_DenseNet121": {
+        "file_path": "modelos_historial/PerrosyGatos_DenseNet121_modelo.keras",
+        "base_cnn": "DenseNet121",
+        "unfreeze": 0,
+        "learning_rate": 0.0001,
+        "img_size": 224,
+        "epochs": 10,
+        "batch_size": 32,
+        "test_accuracy": 0.9901960492134094,
+        "test_loss": 0.034342218190431595,
+        "classes": [
+            "cats",
+            "dogs"
+        ]
     }
 }
