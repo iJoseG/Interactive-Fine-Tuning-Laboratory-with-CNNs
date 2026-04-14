@@ -439,7 +439,11 @@ Número de veces que el modelo recorre todo el dataset de entrenamiento. El `Mod
 
 Si prefieres no configurar un entorno de desarrollo, puedes descargar los binarios pre-compilados directamente desde el apartado de **[Releases de GitHub](https://github.com/iJoseG/Interactive-Fine-Tuning-Laboratory-with-CNNs/releases)**:
 
-- **Linux (AppImage):** Descarga `fine_tuning_app-x86_64.AppImage`, dale permisos de ejecución (`chmod +x fine_tuning_app-x86_64.AppImage`) y lánzalo.
+- **Linux (AppImage):** Descarga `bashfine_tuning_app-x86_64.AppImage`, dale permisos de ejecución 
+```bash
+chmod +x fine_tuning_app-x86_64.AppImage
+``` 
+y lánzalo.
 - **Windows (Portable):** Descarga `FineTuningLab.zip`, descomprímelo y ejecuta el archivo `fine_tuning_app.exe`. No requiere instalación de Python ni librerías adicionales.
 
 ---
