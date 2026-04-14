@@ -2,9 +2,13 @@
 venv_tf/
 dataset_temp/
 dataset_split/
+modelos_historial/
+graficas_historial/
+model_registry.json
 
 # Archivos de caché transitorios de Python por defecto
 __pycache__/
 *.pyc
 *.keras
 *.so*
+

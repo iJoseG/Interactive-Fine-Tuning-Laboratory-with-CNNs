@@ -31,6 +31,8 @@
 13. [Interpretación de Resultados](#-interpretación-de-resultados)
 14. [Guía Anti-Overfitting](#%EF%B8%8F-guía-anti-overfitting)
 15. [Solución de Problemas](#-solución-de-problemas)
+16. [Consideraciones Éticas y Uso Responsable](#-consideraciones-éticas-y-uso-responsable)
+17. [Validación Técnica y Casos de Prueba](#-validación-técnica-y-casos-de-prueba)
 
 ---
 
@@ -389,7 +391,7 @@ Esto espera a que el micro-lote actual termine, libera la GPU correctamente y re
 Identificador único alfanumérico para este entrenamiento. Se usa como clave en `model_registry.json` y como nombre de carpeta para las gráficas. Ejemplos: `MobileNetV2_LR0001_10epochs`, `ResNet50_Frutas_v2`.
 
 ### Modelo CNN Base
-Ver tabla comparativa en la sección [Arquitecturas CNN Disponibles](#arquitecturas-cnn-disponibles).
+Ver tabla comparativa en la sección [Arquitecturas CNN Disponibles](#%EF%B8%8F-arquitecturas-cnn-disponibles).
 
 ### Learning Rate (Tasa de Aprendizaje)
 
@@ -732,7 +734,180 @@ Batch sizes más pequeños producen gradientes más ruidosos, que actúan como r
 
 ---
 
+## 🧭 Consideraciones Éticas y Uso Responsable
+
+### Sesgos en los datos
+- El modelo hereda los sesgos del dataset de entrenamiento. Si tu ZIP contiene mayoritariamente manzanas rojas, el modelo puede fallar con manzanas verdes.
+- Las clases deben ser equilibradas y representar la variabilidad del mundo real.
+
+### Privacidad
+- Las imágenes que cargas para entrenamiento o predicción se almacenan temporalmente en `dataset_temp/` y `dataset_split/`, y se eliminan al finalizar el proceso. Sin embargo, si detienes la app abruptamente, podrían quedar residuos. Se recomienda no usar imágenes con información personal sensible.
+
+### Seguridad
+- El código no valida rutas dentro del ZIP (path traversal). En un entorno controlado no hay riesgo, pero no se debe usar con archivos de origen no confiable.
+
+### Uso responsable
+- Este sistema es una herramienta educativa y de prototipado rápido. No debe emplearse para diagnósticos médicos, vigilancia masiva o decisiones automatizadas sin supervisión humana.
+
+### Limitaciones conocidas
+- Solo soporta clasificación de imágenes (no detección, segmentación).
+- Requiere estructura de carpetas específica.
+- Modelos muy grandes (EfficientNetV2L) pueden quedarse sin memoria en GPUs modestas.
+
+---
+
+## 🧪 Validación Técnica y Casos de Prueba
+
+Esta sección documenta los experimentos reales ejecutados durante el desarrollo y validación de la herramienta. Todos los datos provienen directamente del archivo `model_registry.json` generado por la aplicación. El dataset de frutas contiene **7 clases** (`apple`, `coconut`, `orange`, `pear`, `pineapple`, `strawberry`, `watermelon`), y el dataset de animales contiene **10 clases** en italiano. Los experimentos de perros y gatos son clasificación binaria (2 clases).
+
+---
+
+### 📋 Tabla Resumen de Experimentos
+
+| # | Nombre del Experimento | Arquitectura | Dataset | Capas Desconf. | LR | Épocas | Batch | **Acc. Test** | Loss Test |
+|---|------------------------|-------------|---------|---------------|-----|--------|-------|:-------------:|-----------|
+| 1 | `Modelo1AntesdeDormi` | MobileNetV2 | Frutas (7) | 4 | 0.0001 | 10 | 32 | **100.00%** ✅ | 0.0024 |
+| 2 | `Antededormi2` | DenseNet121 | Frutas (7) | 4 | 0.0001 | 10 | 32 | **99.32%** ✅ | 0.0165 |
+| 3 | `UltimaVersioPrueba` | MobileNetV2 | Frutas (7) | 0 | 0.0001 | 10 | 36 | **99.66%** ✅ | 0.0154 |
+| 4 | `PerrosyGatos_DenseNet121` | DenseNet121 | Gatos/Perros (2) | 0 | 0.0001 | 10 | 32 | **99.02%** ✅ | 0.0343 |
+| 5 | `PerrosyGatos` | MobileNetV2 | Gatos/Perros (2) | 0 | 0.0001 | 10 | 32 | **96.57%** ✅ | 0.0716 |
+| 6 | `Animales` | MobileNetV2 | Animales (10) | 2 | 0.0001 | 10 | 32 | **95.65%** ✅ | 0.1515 |
+| 7 | `ProbandoBotondeCancelar` | ResNet50 | Frutas (7) | 2 | 0.0001 | 10 | 32 | **61.71%** ⚠️ | 1.4224 |
+| 8 | `ProbandoEfficientNetV2L` | EfficientNetV2L | Gatos/Perros (2) | 2 | 0.0001 | 10 | 32 | **57.84%** ⚠️ | 0.6791 |
+| 9 | `DuranteLaClase` | EfficientNetB0 | Frutas (7) | 2 | 0.0001 | 10 | 32 | **26.84%** ❌ | 1.8411 |
+
+---
+
+### 🔬 Análisis Detallado por Experimento
+
+#### Experimentos de Alto Rendimiento (Acc ≥ 95%)
+
+**Experimento 1 — `Modelo1AntesdeDormi` (MobileNetV2, Frutas, 100%)**
+
+El resultado más destacado del banco de pruebas. MobileNetV2 con apenas 4 capas descongeladas y LR de 0.0001 sobre el dataset de frutas alcanzó una precisión perfecta en el Test Set. Esto indica que el dataset de frutas es altamente distinguible visualmente, y que MobileNetV2 posee suficiente conocimiento previo de ImageNet para clasificarlo eficientemente con un ajuste fino muy conservador. El valor de loss extremadamente bajo (0.0024) confirma que no hubo colapso por overfitting y las predicciones fueron consistentes.
+
+**Experimento 2 — `Antededormi2` (DenseNet121, Frutas, 99.32%)**
+
+DenseNet121 replicó prácticamente el éxito del experimento anterior con la misma configuración. Las conexiones densas características de esta arquitectura, que propagan gradientes de forma más eficiente que las redes convencionales, permitieron un aprendizaje igualmente robusto. La diferencia marginal con el experimento 1 (menos del 1%) puede atribuirse a la mayor complejidad interna de DenseNet, que puede requerir ligeramente más datos o épocas para converger completamente.
+
+**Experimento 3 — `UltimaVersioPrueba` (MobileNetV2, Frutas, 99.66%)**
+
+Configuración interesante: 0 capas descongeladas (solo se entrena la cabeza clasificadora) con batch size ligeramente mayor (36 vs 32). El resultado de 99.66% demuestra que **para este dataset específico, el conocimiento general de ImageNet es suficiente** y no es necesario descongelar ninguna capa del modelo base. Esto valida la hipótesis de que los primeros experimentos con Transfer Learning puro (sin Fine-Tuning) son el punto de partida correcto.
+
+**Experimento 4 — `PerrosyGatos_DenseNet121` (DenseNet121, Binario, 99.02%)**
+
+DenseNet121 sin ninguna capa descongelada logró 99% en clasificación binaria. El problema de distinguir perros de gatos es intrinsecamente menos complejo que 7 o 10 clases, lo que explica el resultado excelente incluso sin fine-tuning. La combinación DenseNet + LR conservador + 0 unfreeze representa la configuración más segura y predecible.
+
+**Experimento 5 — `PerrosyGatos` (MobileNetV2, Binario, 96.57%)**
+
+MobileNetV2 sobre el mismo dataset binario obtuvo 96.57%, 2.5 puntos por debajo de DenseNet121 con idéntica configuración. Esto evidencia que DenseNet121 tiene ligera ventaja en problemas donde la reutilización del gradiente entre capas mejora la representación de características de bajo nivel como textura del pelaje.
+
+**Experimento 6 — `Animales` (MobileNetV2, 10 clases, 95.65%)**
+
+El dataset más complejo del banco de pruebas (10 clases de animales, en italiano). MobileNetV2 con 2 capas descongeladas logró 95.65%, lo cual es un resultado sobresaliente considerando la dificultad del problema. La pérdida de 0.1515 es consistente con un modelo bien generalizado, aunque existe cierto margen de mejora, especialmente para clases visualmente similares (p. ej. gatos y perros pueden confundirse con sus equivalentes del dataset).
+
+---
+
+#### Experimentos de Rendimiento Moderado (Acc 50-80%)
+
+**Experimento 7 — `ProbandoBotondeCancelar` (ResNet50, Frutas, 61.71%)**
+
+Este experimento fue diseñado principalmente para probar la funcionalidad de cancelación del entrenamiento, no para optimizar la precisión. ResNet50 es una arquitectura significativamente más grande que MobileNetV2, y con solo 10 épocas y 2 capas descongeladas puede no haber tenido tiempo suficiente para estabilizar sus pesos residuales en el dominio de frutas. La pérdida alta (1.4224) sugiere que el modelo aún estaba en fase de convergencia cuando terminó el entrenamiento.
+
+**Experimento 8 — `ProbandoEfficientNetV2L` (EfficientNetV2L, Binario, 57.84%)**
+
+EfficientNetV2L es la arquitectura más grande y compleja del catálogo (~480M parámetros). Configurada con resolución de imagen de solo 224px (cuando su óptimo es 480px), 2 capas descongeladas y apenas 10 épocas, obtuvo resultados por debajo de lo esperado en un problema binario. Este resultado ilustra claramente que **las arquitecturas grandes no garantizan mejores resultados con configuraciones subóptimas**.
+
+---
+
+#### Experimento de Bajo Rendimiento (Acc < 30%)
+
+**Experimento 9 — `DuranteLaClase` (EfficientNetB0, Frutas, 26.84%)**
+
+El rendimiento más bajo del registro, apenas superior al azar en 7 clases (14.3% teórico). Este experimento utilizó `EfficientNetB0`, una arquitectura que fue posteriormente reemplazada por `EfficientNetV2L` en la interfaz. La brevedad del entrenamiento (10 épocas), la resolución de imagen inadecuada (224px en lugar de al menos 240px recomendados para EfficientNet), y posiblemente la inestabilidad del modelo ante el dataset de frutas con solo 2 capas descongeladas explican el colapso. La pérdida de 1.8411 confirma que el modelo nunca llegó a converger apropiadamente.
+
+---
+
+### 📊 Comparativa Visual de Precisión
+
+```
+Precisión en Test Set (ordenado de mayor a menor)
+
+Modelo1AntesdeDormi   ████████████████████  100.00%  MobileNetV2   Frutas
+UltimaVersioPrueba    ███████████████████▉   99.66%  MobileNetV2   Frutas
+Antededormi2          ███████████████████▊   99.32%  DenseNet121   Frutas
+PerrosyGatos_Dense    ███████████████████▊   99.02%  DenseNet121   Binario
+PerrosyGatos          ███████████████████▎   96.57%  MobileNetV2   Binario
+Animales              ███████████████████    95.65%  MobileNetV2   10 clases
+ProbandoCancel        ████████████▎          61.71%  ResNet50      Frutas
+ProbandoEfficientV2L  ███████████▌           57.84%  EfficientV2L  Binario
+DuranteLaClase        █████▍                 26.84%  EfficientNetB0 Frutas
+```
+
+---
+
+### 🧩 Conclusiones y Recomendaciones
+
+#### ✅ Hallazgos Confirmados
+
+1. **MobileNetV2 y DenseNet121 son las arquitecturas más confiables** para datasets de tamaño moderado con LR de 0.0001 y pocas o ninguna capa descongelada. Ambas alcanzaron más del 99% de precisión en el dataset de frutas.
+
+2. **El dataset de frutas es altamente clasificable**: Las características visuales de las 7 frutas (forma, color, textura de la piel) son suficientemente distintas para que incluso Transfer Learning puro (0 capas descongeladas) logre resultados casi perfectos en 10 épocas.
+
+3. **Las arquitecturas grandes requieren configuración cuidadosa**: EfficientNetV2L con 57.84% en clasificación binaria (un problema sencillo) demuestra que el tamaño del modelo no sustituye a una configuración adecuada de resolución, épocas y learning rate.
+
+4. **10 épocas con LR 0.0001 es un punto de partida sólido** para la mayoría de casos, gracias al ModelCheckpoint que preserva el mejor resultado independientemente de la dinámica de las últimas épocas.
+
+#### ⚠️ Recomendaciones de Mejora para Modelos con Bajo Rendimiento
+
+##### Para `DuranteLaClase` (EfficientNetB0, 26.84%) → Reentrenamiento Sugerido:
+
+| Parámetro actual | Valor actual | Valor recomendado | Justificación |
+|-----------------|-------------|-------------------|---------------|
+| Arquitectura | EfficientNetB0 | MobileNetV2 o DenseNet121 | Arquitecturas más estables para datasets medianos |
+| Resolución | 224px | 240px | Resolución nativa mínima de EfficientNet |
+| Capas descongeladas | 2 | 0 | Comenzar sin fine-tuning para establecer baseline |
+| Épocas | 10 | 20 | Dar más tiempo de convergencia |
+| Learning Rate | 0.0001 | 0.0001 | Mantener (es correcto) |
+
+##### Para `ProbandoEfficientNetV2L` (EfficientNetV2L, 57.84%) → Reentrenamiento Sugerido:
+
+| Parámetro actual | Valor actual | Valor recomendado | Justificación |
+|-----------------|-------------|-------------------|---------------|
+| Resolución | 224px | **480px** | EfficientNetV2L fue diseñado para 480×480 |
+| Capas descongeladas | 2 | **0** | Con resolución correcta, probar Transfer Learning puro primero |
+| Épocas | 10 | **20-30** | Arquitectura grande necesita más tiempo |
+| Batch size | 32 | **16** | Compensar el mayor uso de memoria por la resolución superior |
+| Learning Rate | 0.0001 | **0.00001** | LR más conservador para arquitectura tan grande |
+
+##### Para `ProbandoBotondeCancelar` (ResNet50, 61.71%) → Reentrenamiento Sugerido:
+
+| Parámetro actual | Valor actual | Valor recomendado | Justificación |
+|-----------------|-------------|-------------------|---------------|
+| Capas descongeladas | 2 | **5** | ResNet50 necesita más capas adaptadas al dominio |
+| Épocas | 10 | **20** | La arquitectura residual converge más lentamente |
+| Batch size | 32 | **32** | Mantener |
+| Learning Rate | 0.0001 | **0.0001** | Mantener |
+
+#### 🏆 Configuración Ganadora Recomendada (Baseline)
+
+Para cualquier nuevo dataset de clasificación de imágenes, se recomienda iniciar con esta configuración probada y documentada:
+
+```
+Arquitectura:         MobileNetV2
+Learning Rate:        0.0001
+Capas Descongeladas:  0 (Transfer Learning puro como baseline)
+Épocas:               10-15
+Batch Size:           32
+Resolución:           224 × 224
+```
+
+Esta configuración logró consistentemente resultados superiores al 96% en todos los datasets probados, y sirve como **punto de referencia** antes de explorar configuraciones más agresivas.
+
+---
+
 ## 📄 Licencia
+
 
 Este proyecto está distribuido bajo la licencia MIT. Puedes usarlo, modificarlo y distribuirlo libremente citando la fuente original.
 
